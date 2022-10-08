@@ -1,16 +1,17 @@
 from tensorflow.keras.layers import Conv2D, BatchNormalization, Activation, MaxPooling2D, Conv2DTranspose, Concatenate, Input, AveragePooling2D, UpSampling2D
 from tensorflow.keras.models import Model
 import tensorflow as tf
+import tensorflow_addons as tfa
 
 def conv_block(input, num_filters):
     x = Conv2D(num_filters, 3, padding="same")(input)
-    x = BatchNormalization()(x)
-    x = Activation("relu")(x)
+    x = Activation("leaky_relu")(x)
+    x = tfa.layers.GroupNormalization(groups=32,axis=-1)(x)
 
     x = Conv2D(num_filters, 3, padding="same")(x)
-    x = BatchNormalization()(x)
-    x = Activation("relu")(x)
-
+    x = Activation("leaky_relu")(x)
+    x = tfa.layers.GroupNormalization(groups=32,axis=-1)(x)
+    
     return x
 
 def SqueezeAttentionBlock(input, num_filters):
@@ -36,30 +37,30 @@ def dense_aspp(x, filter):
 
     # conv1*1 -> BN -> ReLU
     conv_1 = Conv2D(filter, 1, padding="same", use_bias=False)(x)
-    conv_1 = BatchNormalization()(conv_1)
-    conv_1 = Activation("relu")(conv_1)
+    conv_1 = Activation("leaky_relu")(conv_1)
+    conv_1 = tfa.layers.GroupNormalization(groups=32,axis=-1)(conv_1)
 
     # Conv3*3 with dilation_rate=6 -> BN -> ReLU
     y0 = Conv2D(filter, 3, padding="same", dilation_rate=(6, 6), use_bias=False)(x)
-    y0 = BatchNormalization()(y0)
-    y0 = Activation("relu")(y0) 
+    y0 = Activation("leaky_relu")(y0)
+    y0 = tfa.layers.GroupNormalization(groups=32,axis=-1)(y0)
 
     concat_x_y0 = Concatenate()([x, y0])
     y1 = Conv2D(filter, 3, padding="same", dilation_rate=(12, 12), use_bias=False)(concat_x_y0)
-    y1 = BatchNormalization()(y1)
-    y1 = Activation("relu")(y1)
+    y1 = Activation("leaky_relu")(y1)
+    y1 = tfa.layers.GroupNormalization(groups=32,axis=-1)(y1)
 
     concat_x_y0_y1 = Concatenate()([x, y0, y1])
     y2 = Conv2D(filter, 3, padding="same", dilation_rate=(18, 18), use_bias=False)(concat_x_y0_y1)
-    y2 = BatchNormalization()(y2)
-    y2 = Activation("relu")(y2)  
+    y2 = Activation("leaky_relu")(y2)
+    y2 = tfa.layers.GroupNormalization(groups=32,axis=-1)(y2)
 
     avg_pool = AveragePooling2D((2, 2))(x)
     avg_pool = UpSampling2D((2, 2))(avg_pool)
     y = Concatenate()([conv_1, y0, y1, y2, avg_pool])
     y = Conv2D(filter, 1, dilation_rate=1, padding="same", use_bias=False)(y)
-    y = BatchNormalization()(y)
-    y = Activation("relu")(y)
+    y = Activation("leaky_relu")(y)
+    y = tfa.layers.GroupNormalization(groups=32,axis=-1)(y)
 
     return y
 
@@ -94,4 +95,4 @@ def build_model(input_shape):
 if __name__ == "__main__":
     input_shape = (512, 512, 3)
     model = build_model(input_shape)
-    model.summary()        
+    model.summary()             
