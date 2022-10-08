@@ -10,7 +10,7 @@ from tensorflow.keras.callbacks import ModelCheckpoint, CSVLogger, ReduceLROnPla
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import Recall, Precision
 from model import build_model
-from metrics import dice_loss, dice_coef, iou
+from metrics import dice_loss, dice_coef, iou, binary_weighted_dice_crossentropy_loss
 
 H = 512
 W = 512
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     """ Model """
     model = build_model((H, W, 3))
     metrics = [dice_coef, iou, Recall(), Precision(), 'acc']
-    model.compile(loss=dice_loss, optimizer=Adam(lr), metrics=metrics)
+    model.compile(loss=binary_weighted_dice_crossentropy_loss, optimizer=Adam(lr), metrics=metrics)
 
     callbacks = [
         ModelCheckpoint(model_path, verbose=1, save_best_only=True),
