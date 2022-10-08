@@ -129,28 +129,11 @@ def augment_data(images, masks, save_path, augment=True):
             x11 = augmented['image']
             y11 = augmented['mask']
 
-            aug = RandomBrightness(p=1)
-            augmented = aug(image=x, mask=y)
-            x12 = augmented['image']
-            y12 = augmented['mask']
-
-            aug = RandomContrast(p=1)
-            augmented = aug(image=x, mask=y)
-            x13 = augmented['image']
-            y13 = augmented['mask']
-
-            aug = MotionBlur(p=1, blur_limit=7)
-            augmented = aug(image=x, mask=y)
-            x14 = augmented['image']
-            y14 = augmented['mask']
-
             X = [
-                x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10,
-                x11, x12, x13, x14
+                x, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11
             ]
             Y = [
-            y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10,
-            y11, y12, y13, y14
+            y, y1, y2, y3, y4, y5, y6, y7, y8, y9, y10, y11
             ]
 
         else:
