@@ -15,17 +15,17 @@ from metrics import dice_loss, dice_coef, iou, binary_weighted_dice_crossentropy
 H = 512
 W = 512
 
-def main_loss(y_true, y_pred):
-    def dice_loss(y_true, y_pred):
-      y_pred = tf.math.sigmoid(y_pred)
-      numerator = 2 * tf.reduce_sum(y_true * y_pred)
-      denominator = tf.reduce_sum(y_true + y_pred)
+# def main_loss(y_true, y_pred):
+#     def dice_loss(y_true, y_pred):
+#       y_pred = tf.math.sigmoid(y_pred)
+#       numerator = 2 * tf.reduce_sum(y_true * y_pred)
+#       denominator = tf.reduce_sum(y_true + y_pred)
 
-      return 1 - numerator / denominator
+#       return 1 - numerator / denominator
 
-    y_true = tf.cast(y_true, tf.float32)
-    o = tf.nn.sigmoid_cross_entropy_with_logits(y_true, y_pred) + dice_loss(y_true, y_pred)
-    return tf.reduce_mean(o)
+#     y_true = tf.cast(y_true, tf.float32)
+#     o = tf.nn.sigmoid_cross_entropy_with_logits(y_true, y_pred) + dice_loss(y_true, y_pred)
+#     return tf.reduce_mean(o)
 
 def create_dir(path):
     """ Create a directory. """
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     """ Model """
     model = build_model((H, W, 3))
     metrics = [dice_coef, iou, Recall(), Precision(), 'acc']
-    model.compile(loss=main_loss, optimizer=Adam(lr), metrics=metrics)
+    model.compile(loss=bce_dice_loss, optimizer=Adam(lr), metrics=metrics)
 
     callbacks = [
         ModelCheckpoint(model_path, verbose=1, save_best_only=True),
